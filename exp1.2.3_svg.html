@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SVG Shape Drawing Tool</title>
+<style>
+body {
+    font-family: Arial;
+    padding: 20px;
+}
+    svg {
+    width: 90vw;
+    height: 60vh;
+    border: 2px solid black;
+    background: white;
+}
+</style>
+</head>
+<body>
+  <h3>SVG Drawing Tool</h3>
+  Shape:
+  <select id="shape">
+    <option value="rect">Rectangle</option>
+    <option value="circle">Circle</option>
+  </select>
+  Color:
+  <input type="color" id="color">
+  <button onclick="undo()">Undo</button>
+  <br><br>
+  <svg id="svg"></svg>
+  <script>
+    let svg = document.getElementById("svg");
+    let color = document.getElementById("color");
+    let shape = document.getElementById("shape");
+    let drawing = false;
+    let startX, startY, element;
+    svg.onmousedown = function (e) {
+      drawing = true;
+      startX = e.offsetX;
+      startY = e.offsetY;
+      if (shape.value === "rect") {
+        element = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        element.setAttribute("x", startX);
+        element.setAttribute("y", startY);
+        element.setAttribute("width", 0);
+        element.setAttribute("height", 0);
+      } else {
+        element = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        element.setAttribute("cx", startX);
+        element.setAttribute("cy", startY);
+        element.setAttribute("r", 0);
+      }
+
+      element.setAttribute("fill", color.value);
+      svg.appendChild(element);
+    };
+    svg.onmousemove = function (e) {
+      if (!drawing) return;
+      if (shape.value === "rect") {
+        element.setAttribute("width", e.offsetX - startX);
+        element.setAttribute("height", e.offsetY - startY);
+      } else {
+        let r = Math.sqrt(
+          Math.pow(e.offsetX - startX, 2) +
+          Math.pow(e.offsetY - startY, 2)
+        );
+        element.setAttribute("r", r);
+      }
+    };
+
+    svg.onmouseup = function () {
+      drawing = false;
+    };
+
+    function undo() {
+      if (svg.lastChild)
+        svg.removeChild(svg.lastChild);
+    }
+  </script>
+</body>
+</html>
